@@ -1,0 +1,10 @@
+# 1. Vá até a pasta no Windows
+cd C:\MeuSO
+
+# 2. Delete o vdi antigo
+del disco_total.vdi
+
+# 3. Converta forçando o tamanho real de 105MB e injetando o UUID que a VM já conhece!
+
+"C:\Program Files\Oracle\VirtualBox\VBoxManage.exe" convertfromraw disco_total.img disco_total.vdi --variant Fixed --uuid {f7cc1a54-2cd7-4dcd-b578-1cca32ad320c}
+

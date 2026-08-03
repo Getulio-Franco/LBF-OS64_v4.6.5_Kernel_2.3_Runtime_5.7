@@ -1,0 +1,50 @@
+# ==============================================================================
+# LBF OS - SCRIPT DE COMPILAÇÃO TRADICIONAL EXPANDIDA (RING3 - RUNTIME E SDK)
+# ==============================================================================
+
+rm -f *.o events/*.o gui/*.o Software_Explorer/*.o system/*.o Runtime_sdk/*.o Runtime_sdk/sdk/*.o Runtime_sdk/components/*.o
+
+nasm -f elf64 system/memcpy.asm -o system/memcpy_asm.o
+nasm -f elf64 system/memset.asm -o system/memset_asm.o
+nasm -f elf64 system/syscall.asm -o system/syscall_asm.o
+
+# 1. Sistema e Runtime (A base do executável)
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -c system/crt0.c -o system/crt0.o
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -I. -c system/string.c -o system/string.o
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -I. -c system/malloc.c -o system/malloc.o
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -I. -c system/graphics.c -o system/graphics.o
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -I. -c system/fonts.c -o system/fonts.o
+
+# ------------- Eventos inicio --------------------------
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -I. -c events/cursor_engine.c -o events/cursor_engine.o
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -I. -c events/input_events.c -o events/input_events.o
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -I. -c events/mouse_geometry.c -o events/mouse_geometry.o
+# ------------- Eventos fim -----------------------------
+
+# ------------- Complemento gui -------------------------
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -I. -c gui/gui_interaction.c -o gui/gui_interaction.o
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -I. -c gui/window_drag.c -o gui/window_drag.o
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -I. -c gui/z_order.c -o gui/z_order.o
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -I. -c gui/wm.c -o gui/wm.o
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -I. -c gui/gui.c -o gui/gui.o
+
+# 2. Biblioteca Visual e RAD - COMPONENTES
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/libgui.c -o Runtime_sdk/sdk/libgui.o
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/TButton.c -o Runtime_sdk/sdk/TButton.o
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/TLabel.c -o Runtime_sdk/sdk/TLabel.o
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/TEdit.c -o Runtime_sdk/sdk/TEdit.o
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/TMemo.c -o Runtime_sdk/sdk/TMemo.o
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/TComboBox.c -o Runtime_sdk/sdk/TComboBox.o
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/TCheckBox.c -o Runtime_sdk/sdk/TCheckBox.o
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/TRadioButton.c -o Runtime_sdk/sdk/TRadioButton.o
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/TImage.c -o Runtime_sdk/sdk/TImage.o
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/TForm.c -o Runtime_sdk/sdk/TForm.o
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/TPanel.c -o Runtime_sdk/sdk/TPanel.o
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/TScrollBar.c -o Runtime_sdk/sdk/TScrollBar.o
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/TListView.c -o Runtime_sdk/sdk/TListView.o
+
+# SERIAL E IPC
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/components/TOSSerial.c -o Runtime_sdk/components/TOSSerial.o
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/components/TOS_IPC.c -o Runtime_sdk/components/TOS_IPC.o
+
+

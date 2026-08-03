@@ -1,0 +1,38 @@
+# ==============================================================================
+# LBF OS - SCRIPT DE COMPILAÇÃO E LINKAGEM TRADICIONAL (RING3 - SOFTWARE / TAREFA)
+# ==============================================================================
+
+# 1. Compilação do código fonte do aplicativo (Com otimização máxima -O3 + SSE3)
+gcc -O3 -msse3 -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/teclado.c -o Runtime_sdk/teclado.o
+
+# 2. Linkagem estática final utilizando o LD diretamente para controle total (teclado.elf)
+ld -m elf_x86_64 -T user.ld -static -o teclado.elf \
+    system/crt0.o \
+    Runtime_sdk/teclado.o \
+    Runtime_sdk/sdk/libgui.o \
+    Runtime_sdk/sdk/TScrollBar.o \
+    Runtime_sdk/sdk/TListView.o \
+    Runtime_sdk/sdk/TComboBox.o \
+    Runtime_sdk/sdk/TButton.o \
+    Runtime_sdk/sdk/TEdit.o \
+    Runtime_sdk/sdk/TMemo.o \
+    Runtime_sdk/sdk/TCheckBox.o \
+    Runtime_sdk/sdk/TRadioButton.o \
+    Runtime_sdk/sdk/TLabel.o \
+    gui/gui.o \
+    gui/wm.o \
+    gui/z_order.o \
+    gui/gui_interaction.o \
+    system/graphics.o \
+    system/fonts.o \
+    system/string.o \
+    events/input_events.o \
+    Runtime_sdk/components/TOS_IPC.o \
+    Runtime_sdk/components/TOSSerial.o \
+    system/memcpy_asm.o \
+    system/memset_asm.o \
+    system/syscall_asm.o \
+    system/malloc.o
+    
+    
+    mcopy -o -i disco_sata.img teclado.elf ::/

@@ -1,0 +1,14 @@
+# 1. Compila o Motor Central (libgui.c)
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/libgui.c -o Runtime_sdk/sdk/libgui.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/TButton.c -o Runtime_sdk/sdk/TButton.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/TLabel.c -o Runtime_sdk/sdk/TLabel.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/TEdit.c -o Runtime_sdk/sdk/TEdit.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/TMemo.c -o Runtime_sdk/sdk/TMemo.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/TComboBox.c -o Runtime_sdk/sdk/TComboBox.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/TCheckBox.c -o Runtime_sdk/sdk/TCheckBox.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/TRadioButton.c -o Runtime_sdk/sdk/TRadioButton.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/TImage.c -o Runtime_sdk/sdk/TImage.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/TForm.c -o Runtime_sdk/sdk/TForm.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/TPanel.c -o Runtime_sdk/sdk/TPanel.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/TScrollBar.c -o Runtime_sdk/sdk/TScrollBar.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -Isystem -I. -c Runtime_sdk/sdk/TListView.c -o Runtime_sdk/sdk/TListView.o
