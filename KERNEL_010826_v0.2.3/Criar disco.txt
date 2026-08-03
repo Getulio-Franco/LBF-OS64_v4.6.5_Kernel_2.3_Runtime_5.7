@@ -1,0 +1,44 @@
+🛠️ Como Compilar e Montar a Imagem do LBF OS
+Para testar o LBF OS no VirtualBox ou em hardware real, precisamos unir os binários compilados (boot.bin e kernel.bin), empacotar os programas de usuário (.elf) em um sistema de arquivos FAT32 e gerar a imagem final.
+Parte 1: Script Bash para Criação da Imagem Raw (.img)
+
+Parte 2: Coloque o disco_sata.img na pasta - KERNEL_280426_v0.1.0 ou onde tiver os kerenl.c, kernel.bin e boot.asm
+
+# 1. Cria a imagem do disco de dados (FAT32) e formata
+
+
+rm -f disco_sata.img
+dd if=/dev/zero of=disco_sata.img bs=1M count=100
+sudo mkfs.vfat -F 32 disco_sata.img
+
+
+# 2. Insere os softwares e o compositor (Ring 3) dentro do disco FAT32
+
+mcopy -o -i disco_sata.img explorer.elf ::/
+mcopy -o -i disco_sata.img tarefa.elf ::/
+mcopy -o -i disco_sata.img gpci.elf ::/
+mcopy -o -i disco_sata.img serial.elf ::/
+mcopy -o -i disco_sata.img exec.elf ::/
+mcopy -o -i disco_sata.img terminal.elf ::/
+mcopy -o -i disco_sata.img gfile.elf ::/
+mcopy -o -i disco_sata.img calc.elf ::/
+mcopy -o -i disco_sata.img teclado.elf ::/
+mcopy -o -i disco_sata.img snake.elf ::/
+mcopy -o -i disco_sata.img debug.elf ::/
+mcopy -o -i disco_sata.img space.elf ::/
+
+# 1. Montagem da Imagem de Disco Virtual
+
+rm -f disco_total.img
+dd if=/dev/zero of=disco_total.img bs=1M count=100
+dd if=boot.bin of=disco_total.img bs=512 count=1 conv=notrunc
+dd if=kernel.bin of=disco_total.img bs=512 seek=1 conv=notrunc
+
+dd if=disco_sata.img of=disco_total.img seek=2048 conv=notrunc
+
+
+
+no windows na pasta que vai colocar o S.O. usar esse codigo abaixo para criar .vdi para usar no Virtual Box
+
+"C:\Program Files\Oracle\VirtualBox\VBoxManage.exe" convertfromraw disco_total.img disco_total.vdi --variant Fixed --uuid {f7cc1a54-2cd7-4dcd-b578-1cca32ad320c}
+

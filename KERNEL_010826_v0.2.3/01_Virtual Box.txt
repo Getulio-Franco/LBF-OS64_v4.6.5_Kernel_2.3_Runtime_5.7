@@ -1,0 +1,68 @@
+Converter a Imagem Manualmente
+
+# 1. Acesse a pasta do seu projeto (ajuste o caminho se necessário)
+cd "/media/getulio/Diversos_20252/18 _ Kernel/rad_v0.1.4_120526_v6_v13_sigle-core/KERNEL_280426_v0.0.5"
+
+# 2. Delete o VDI antigo para não dar erro de arquivo duplicado
+rm -f disco_total.vdi
+
+# 3. Converta o seu .img atualizado para .vdi
+qemu-img convert -f raw -O vdi disco_total.img disco_total.vdi
+
+-------------------
+
+Criar e Configurar a VM (Apenas na Primeira Vez)
+
+# 1. Cria a VM e registra no VirtualBox (Configurada como 1 único núcleo/Single-Core!)
+VBoxManage createvm --name "MeuSO_Dev" --ostype "Linux_64" --register
+
+# 2. Configura os recursos básicos (Ajustado para Single-Core de alta fidelidade)
+VBoxManage modifyvm "MeuSO_Dev" --memory 512 --vram 16 --cpus 1 --pae on --firmware bios
+
+# 3. Cria o controlador de armazenamento SATA
+VBoxManage storagectl "MeuSO_Dev" --name "SATA_Controller" --add sata --controller IntelAhci
+
+# 4. Anexa o seu disco_total.vdi que convertemos no Passo 1
+VBoxManage storageattach "MeuSO_Dev" --storagectl "SATA_Controller" --port 0 --device 0 --type hdd --medium "$(pwd)/disco_total.vdi"
+
+
+Configurar a Serial Física (Mapeando o Arduino)
+
+# Ativa a Serial 1 da VM apontando diretamente para o seu hardware real
+VBoxManage modifyvm "MeuSO_Dev" --uart1 on --uartmode1 host_device "/dev/ttyUSB0"
+
+
+Como testar o Pen Drive Real dentro da VM
+
+# Habilita o controlador USB na VM
+VBoxManage modifyvm "MeuSO_Dev" --usb on
+
+# Adiciona o filtro para a VM "sequestrar" o Pen Drive assim que ela ligar
+VBoxManage usbfilter add --target "MeuSO_Dev" --index 0 --name "MeuPendrive" --vendorid "XXXX" --productid "YYYY"
+
+
+Lançar a Máquina Virtual
+
+VBoxManage startvm "MeuSO_Dev"
+
+
+O Fluxo de Trabalho Diário (Sem Makefile)
+
+# 1. Compile seu S.O. normalmente (gerando o disco_total.img)
+# 2. Rode a conversão manual:
+rm -f disco_total.vdi && qemu-img convert -f raw -O vdi disco_total.img disco_total.vdi
+
+# 3. Suba a VM para testar o hardware de verdade:
+VBoxManage startvm "MeuSO_Dev"
+
+
+# 1. Vá até a pasta no Windows
+cd C:\MeuSO
+
+# 2. Delete o vdi antigo
+del disco_total.vdi
+
+# 3. Converta forçando o tamanho real de 105MB e injetando o UUID que a VM já conhece!
+
+"C:\Program Files\Oracle\VirtualBox\VBoxManage.exe" convertfromraw disco_total.img disco_total.vdi --variant Fixed --uuid {f7cc1a54-2cd7-4dcd-b578-1cca32ad320c}
+

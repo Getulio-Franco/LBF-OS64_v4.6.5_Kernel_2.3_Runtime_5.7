@@ -1,0 +1,175 @@
+# 1. Limpa resíduos antigos
+rm -f *.o drivers/*.o drivers/hw/*.o drivers/pci/*.o drivers/pd/*.o drivers/shell/*.o util/*.o fs/*.o mem/*.o include/*.o
+
+# 2. Compilação do Assembly
+nasm -f bin boot.asm -o boot.bin
+nasm -f elf64 kernel.asm -o kernel_asm.o
+nasm -f elf64 drivers/interrupts.asm -o drivers/interrupts_asm.o
+nasm -f elf64 util/memcpy.asm -o util/memcpy_asm.o
+nasm -f elf64 util/memset.asm -o util/memset_asm.o 
+nasm -f elf64 mem/gdt_flush.asm -o mem/gdt_flush_asm.o
+
+
+# 3. Compilação do Core e Memória (Todas com as flags de seções ativas)
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c util/string.c -o util/string.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c mem/pmm.c -o mem/pmm.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c mem/e820.c -o mem/e820.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/video.c -o drivers/video.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/keyboard.c -o drivers/keyboard.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/idt.c -o drivers/idt.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/apps.c -o drivers/apps.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c kernel.c -o kernel_c.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c mem/vmm.c -o mem/vmm.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c mem/kmalloc.c -o mem/kmalloc.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/timer.c -o drivers/timer.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/proc.c -o drivers/proc.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/syscall.c -o drivers/syscall.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c mem/gdt.c -o mem/gdt.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/vfs.c -o drivers/vfs.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/ide.c -o drivers/ide.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/fonts.c -o drivers/fonts.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/mouse.c -o drivers/mouse.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/desktop.c -o drivers/desktop.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/double_buffering.c -o drivers/double_buffering.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/io.c -o drivers/io.o
+
+# 4. Compilando o Shell
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/shell/shell.c -o drivers/shell/shell.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/shell/shell_commands.c -o drivers/shell/shell_commands.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/shell/shell_prompt.c -o drivers/shell/shell_prompt.o
+
+# 5. Compilando o Sistema de Arquivos FAT32
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c fs/fat32.c -o fs/fat32.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c fs/fat32_logic.c -o fs/fat32_logic.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c fs/fat32_dir.c -o fs/fat32_dir.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c fs/fat32_file.c -o fs/fat32_file.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c fs/fat32_xcopy.c -o fs/fat32_xcopy.o
+
+# 6. Compilando o Sub-sistema ELF e Hardware Base
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c include/elf.c -o include/elf.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/hw/pci.c -o drivers/hw/pci.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/hw/serial.c -o drivers/hw/serial.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/hw/pic.c -o drivers/hw/pic.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/hw/disk.c -o drivers/hw/disk.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/hw/ps2.c -o drivers/hw/ps2.o
+
+# 7. Compilando Controladora AHCI / SATA
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/hw/ahci_pci.c -o drivers/hw/ahci_pci.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/hw/ahci_vmm.c -o drivers/hw/ahci_vmm.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/hw/ahci_reset.c -o drivers/hw/ahci_reset.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/hw/ahci_mem.c -o drivers/hw/ahci_mem.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/hw/ahci_cmd.c -o drivers/hw/ahci_cmd.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/hw/ahci_hal.c -o drivers/hw/ahci_hal.o
+
+# 8. Compilando USB II Stack (Apenas uma compilação por arquivo, com as devidas flags)
+
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/pd/ehci_pci.c -o drivers/pd/ehci_pci.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/pd/ehci_core.c -o drivers/pd/ehci_core.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/pd/ehci_storage.c -o drivers/pd/ehci_storage.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/pd/storage.c -o drivers/pd/storage.o
+
+# 9. Compilando barramento_pci
+
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/pci/barramento_pci.c -o drivers/pci/barramento_pci.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/pci/ahci_pci_gerenciador.c -o drivers/pci/ahci_pci_gerenciador.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/pci/ehci_pci_gerenciador.c -o drivers/pci/ehci_pci_gerenciador.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/pci/serial_pci_gerenciador.c -o drivers/pci/serial_pci_gerenciador.o
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/pci/xhci_pci_gerenciador.c -o drivers/pci/xhci_pci_gerenciador.o
+
+# 10. Resolução de video bga
+
+gcc -m64 -ffreestanding -fno-stack-protector -fno-pie -ffunction-sections -fdata-sections -I. -c drivers/bga.c -o drivers/bga.o
+
+
+# 9. Linkagem Final com Remoção de Seções Mortas Ativada (--gc-sections)
+ld -m elf_x86_64 -T linker.ld --gc-sections -o kernel.bin \
+   kernel_asm.o \
+   util/memcpy_asm.o \
+   util/memset_asm.o \
+   mem/gdt_flush_asm.o \
+   kernel_c.o \
+   drivers/idt.o \
+   drivers/video.o \
+   drivers/keyboard.o \
+   drivers/interrupts_asm.o \
+   drivers/timer.o \
+   drivers/proc.o \
+   drivers/syscall.o \
+   drivers/fonts.o \
+   drivers/apps.o \
+   drivers/vfs.o \
+   drivers/io.o \
+   drivers/mouse.o \
+   mem/pmm.o \
+   mem/e820.o \
+   mem/vmm.o \
+   mem/kmalloc.o \
+   mem/gdt.o \
+   util/string.o \
+   fs/fat32.o \
+   fs/fat32_logic.o \
+   fs/fat32_file.o \
+   fs/fat32_dir.o \
+   fs/fat32_xcopy.o \
+   include/elf.o \
+   drivers/shell/shell.o \
+   drivers/shell/shell_commands.o \
+   drivers/shell/shell_prompt.o \
+   drivers/double_buffering.o \
+   drivers/desktop.o \
+   drivers/hw/serial.o \
+   drivers/hw/disk.o \
+   drivers/hw/pic.o \
+   drivers/hw/pci.o \
+   drivers/hw/ahci_pci.o \
+   drivers/hw/ahci_vmm.o \
+   drivers/hw/ahci_reset.o \
+   drivers/hw/ahci_mem.o \
+   drivers/hw/ahci_cmd.o \
+   drivers/hw/ahci_hal.o \
+   drivers/hw/ps2.o \
+   drivers/pd/ehci_pci.o \
+   drivers/pd/ehci_core.o \
+   drivers/pd/storage.o \
+   drivers/pd/ehci_storage.o \
+   drivers/pci/barramento_pci.o\
+   drivers/pci/ahci_pci_gerenciador.o \
+   drivers/pci/ehci_pci_gerenciador.o \
+   drivers/pci/serial_pci_gerenciador.o \
+   drivers/pci/xhci_pci_gerenciador.o \
+   drivers/bga.o \
+   --oformat binary
+   
+# 1. Montagem da Imagem de Disco Virtual - 31MB - 0x1F00000
+
+rm -f disco_total.img
+dd if=/dev/zero of=disco_total.img bs=1M count=100
+dd if=boot.bin of=disco_total.img bs=512 count=1 conv=notrunc
+dd if=kernel.bin of=disco_total.img bs=512 seek=1 conv=notrunc
+
+dd if=disco_sata.img of=disco_total.img seek=2048 conv=notrunc
+
+
+# 2. Inicialização Segura no QEMU com Geometria Controlada
+
+qemu-system-x86_64 -m 2G \
+    -device ich9-ahci,id=ahci \
+    -drive file=disco_total.img,if=none,id=disk,format=raw \
+    -device ide-hd,bus=ahci.0,drive=disk,cyls=1024,heads=16,secs=255 \
+    -d int,cpu_reset \
+    -no-reboot \
+    -no-shutdown
+   
+   
+mcopy -o -i disco_sata.img explorer.elf ::/
+mcopy -o -i disco_sata.img tarefa.elf ::/
+mcopy -o -i disco_sata.img gpci.elf ::/
+mcopy -o -i disco_sata.img serial.elf ::/
+mcopy -o -i disco_sata.img terminal.elf ::/
+mcopy -o -i disco_sata.img gfile.elf ::/
+mcopy -o -i disco_sata.img calc.elf ::/
+mcopy -o -i disco_sata.img teclado.elf ::/
+mcopy -o -i disco_sata.img snake.elf ::/
+mcopy -o -i disco_sata.img debug.elf ::/
+mcopy -o -i disco_sata.img space.elf ::/
+mcopy -o -i disco_sata.img exec.elf ::/

@@ -1,0 +1,3 @@
+Foi feito o tratamento do db_swap_buffers(); desabilitando o envio do  video_flush(); para que o Terminal deixa de enviar o RamBuffer para a VRAM de video, e deixa de funcionar o terminal por tras do explorer.elf gastando ciclo de maquina e memoria.
+
+01/07/2026
